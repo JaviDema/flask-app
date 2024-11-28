@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h1 class="text-center mb-5">EduAI Companion</h1>
+
+            <!-- Tarjeta de Token -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-key-fill me-2"></i>
+                        Obtener Token
+                    </h5>
+                    <div class="mb-4">
+                        <label for="email" class="form-label">Correo Electrónico</label>
+                        <div class="input-group">
+                            <input type="email" class="form-control" id="email" placeholder="tu@email.com">
+                            <button class="btn btn-primary" type="button" id="getTokenBtn">
+                                <i class="bi bi-arrow-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="tokenDisplay" class="alert alert-success d-none" role="alert">
+                        <i class="bi bi-check-circle-fill me-2"></i>
+                        <span id="tokenText"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Inicio de Sesión -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>
+                        Iniciar Sesión
+                    </h5>
+                    <div class="mb-4">
+                        <label for="token" class="form-label">Token de Acceso</label>
+                        <input type="password" class="form-control" id="token" placeholder="Ingresa tu token">
+                    </div>
+                    <button class="btn btn-primary w-100" id="loginBtn">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        Iniciar Sesión
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-danger text-white">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const emailInput = document.getElementById('email');
+    const getTokenBtn = document.getElementById('getTokenBtn');
+    const tokenDisplay = document.getElementById('tokenDisplay');
+    const tokenText = document.getElementById('tokenText');
+    const tokenInput = document.getElementById('token');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginSpinner = loginBtn.querySelector('.spinner-border');
+
+    getTokenBtn.addEventListener('click', function() {
+        const email = emailInput.value.trim();
+        if (email) {
+            fetch('/get_token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({email: email})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.token) {
+                    tokenText.textContent = `Token para ${email}: ${data.token}`;
+                    tokenDisplay.classList.remove('d-none');
+                    localStorage.setItem('token', data.token);
+                    
+                    setTimeout(() => {
+                        window.location.href = '/questionnaire';
+                    }, 3000);
+                } else {
+                    showError('Error al obtener el token');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                showError('Error al obtener el token');
+            });
+        } else {
+            showError('Por favor, ingresa un correo electrónico válido.');
+        }
+    });
+
+    loginBtn.addEventListener('click', function() {
+        const token = tokenInput.value.trim();
+        if (token) {
+            loginSpinner.classList.remove('d-none');
+            loginBtn.disabled = true;
+
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({token: token})
+            })
+            .then(response => response.json())
+            .then(data => {
+                loginSpinner.classList.add('d-none');
+                loginBtn.disabled = false;
+                if (data.message === 'Login successful') {
+                    localStorage.setItem('token', token);
+                    window.location.href = data.questionnaire_completed ? '/dashboard' : '/questionnaire';
+                } else {
+                    showError(data.error || 'Error en el inicio de sesión');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                loginSpinner.classList.add('d-none');
+                loginBtn.disabled = false;
+                showError('Error en el inicio de sesión');
+            });
+        } else {
+            showError('Por favor, ingresa un token válido.');
+        }
+    });
+
+    function showError(message) {
+        const errorToast = document.getElementById('errorToast');
+        const errorBody = errorToast.querySelector('.toast-body');
+        errorBody.textContent = message;
+        const toast = new bootstrap.Toast(errorToast);
+        toast.show();
+    }
+});
+</script>
+{% endblock %}

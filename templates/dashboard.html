@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Perfil de Usuario</h5>
+                <p><strong>Correo:</strong> <span id="userEmail"></span></p>
+                <p><strong>Tipo de Usuario:</strong> <span id="userType"></span></p>
+                <div id="userTypeDescription"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Chat con EduAI</h5>
+                <div id="chatMessages" class="chat-container mb-3"></div>
+                <form id="chatForm">
+                    <div class="input-group">
+                        <input type="text" id="messageInput" class="form-control" placeholder="Escribe tu pregunta..." aria-label="Mensaje">
+                        <label class="btn btn-outline-secondary" for="fileInput">
+                            <i class="fas fa-paperclip"></i>
+                            <input type="file" id="fileInput" style="display: none">
+                        </label>
+                        <button class="btn btn-primary" type="submit" id="sendButton">Enviar</button>
+                    </div>
+                    <div id="filePreview" class="mt-2" style="display: none;">
+                        <small class="text-muted">Archivo adjunto: <span id="fileName"></span></small>
+                        <button type="button" class="btn btn-sm btn-link text-danger" id="removeFile">Eliminar</button>
+                    </div>
+                    <div class="form-text text-muted mt-2">
+                        Escribe tu pregunta y presiona Enviar para recibir ayuda personalizada.
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header bg-danger text-white">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+        <div class="toast-body"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

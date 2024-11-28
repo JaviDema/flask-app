@@ -1,0 +1,18 @@
+[project]
+name = "repl-nix-eduai-companion-1"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.11"
+dependencies = [
+    "email-validator>=2.2.0",
+    "flask>=3.0.3",
+    "flask-sqlalchemy>=3.1.1",
+    "psycopg2-binary>=2.9.10",
+    "openai>=1.52.0",
+    "pyjwt>=2.9.0",
+    "mistralai==0.4.2",
+    "scikit-learn>=1.5.2",
+    "nltk>=3.9.1",
+    "numpy",
+    "werkzeug>=3.0.4",
+]
